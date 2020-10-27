@@ -1,0 +1,12 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/user/public_html/
+    - /bin/cp application.py $DEPLOYPATH
+    - /bin/cp Grade5Words.txt $DEPLOYPATH
+    - /bin/cp helpers.py $DEPLOYPATH
+    - /bin/cp package-lock.json $DEPLOYPATH
+    - /bin/cp requirements.txt $DEPLOYPATH
+    - /bin/cp SpeechPacer.db $DEPLOYPATH
+    - /bin/cp -R static $DEPLOYPATH
+    - /bin/cp -R templates $DEPLOYPATH
