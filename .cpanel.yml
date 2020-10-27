@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/user/public_html/
+    - export DEPLOYPATH=/home/l629cgouirbi/public_html/
     - /bin/cp application.py $DEPLOYPATH
     - /bin/cp Grade5Words.txt $DEPLOYPATH
     - /bin/cp helpers.py $DEPLOYPATH
