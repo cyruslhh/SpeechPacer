@@ -1,0 +1,527 @@
+{% extends "layout.html" %}
+
+{% block topbar %}
+    <li class="nav-item">
+        <a class="nav-link" href="/">Home</a>
+    </li>
+    <li class="nav-item active">
+        <a class="nav-link" href="/exercises">Exercises <span class="sr-only">(current)</span></a>
+    </li>
+{% endblock %}
+
+{% block rightbar %}
+        <ul class="nav navbar-nav navbar-right">
+          <li class="nav-item active">
+            <span class="nav-link"> Welcome, {{username}}!</span>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/logout">Log Out</a>
+          </li>
+        </ul>
+{% endblock %}
+
+{% block title %}
+<h1 class="pt-4"> Welcome to the exercise area!</h1>
+{% endblock %}
+
+{% block main %}
+<br>
+<br>
+
+<!-- Modal -->
+<div class="modal fade" id="results" tabindex="-1" role="dialog" aria-labelledby="resultsTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="resultsTitle">Exercise Finished</h5>
+      </div>
+      <div class="modal-body">
+        <div class="container col-10">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container col-10">
+    <div class="row my-3 justify-content-md-center">
+        <h3 id="speed"> Current Speed: </h3>
+    </div>
+    <div class="row my-3 justify-content-md-center">
+        <label for="sample" style="font-size: 130%"><b>Sample:<br></b></label>
+        <span id="sample" style="font-size: 120%"></span>
+    </div>
+    <div class="row justify-content-md-center my-3">
+        <button type="button" class="btn btn-primary" onclick="speakSample()" id="listen">Listen to sample!</button>
+    </div>
+</div>
+
+<div class="container col-10 pt-4">
+    <div class="row my-3 justify-content-md-center">
+        <label for="passage" style="font-size: 130%"><b>Your passage:<br></b></label>
+        <span id="passage" style="font-size: 120%"></span>
+    </div>
+    <div class="row justify-content-md-center my-3">
+        <button type="button" class="btn btn-primary" onclick="startExercise()" id="start">Start Exercise!</button>
+    </div>
+</div>
+
+<script>
+    //lists of words. SampleList for the text sample, actualTextList for what the user says.
+    var sampleTextList = [];
+    var actualTextList = [];
+
+    //All words in sampleTextList/actualTextList concatenated.
+    var sampleText = "";
+    var actualText = "";
+
+    //Use passed in speed and assign to variable selectedSpeed.
+    var selectedSpeed = {{speed}};
+
+    //For each word in passed in paramater (jinja), add into the text lists.
+    {% for word in sample %}
+        sampleTextList.push("{{word}}");
+    {% endfor %}
+    {% for word in text %}
+        actualTextList.push("{{word}}");
+    {% endfor %}
+
+    //concatenated each word to sampleText and actualText to get 1 string.
+    for(let idx = 0; idx < sampleTextList.length; idx++) {
+        sampleText = sampleText.concat(sampleTextList[idx] + " ");
+        actualText = actualText.concat(actualTextList[idx] + " ");
+    }
+
+    //Update the speed text to display the current speaking speed of the user.
+    $(function() {
+        $("#speed").text($("#speed").text().concat(" " + selectedSpeed + " words per minute"));
+    })
+
+    //Set the text in the area marked for showing the passage for the user to read to actualText.
+    document.querySelector("#passage").textContent = actualText;
+
+    //Sets up speech recognition API.
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
+    var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+
+    //index of which word the user is on
+    var wordIndex = 0;
+
+    //timestamp (in milliseconds) of when the user started.
+    var startTimeStamp = 0;
+
+    //how much time (in milliseconds) should be between words.
+    var timer = 0;
+
+    //Set sample text
+    document.querySelector("#sample").textContent = sampleText;
+
+    //start speech synthesis API. Cancel in case there are any ongoing ones from page refresh.
+    var synth = window.speechSynthesis;
+    synth.cancel();
+
+
+
+    //Called by the Listen to Sample button, speaks the sample passage at the user's current speed.
+    function speakSample() {
+        //calculate the rate (for the speech synthesis, where 1 is normal rate) at which the speech object shoudl talk
+        var rate = parseFloat((selectedSpeed-30)/500 + 0.5);
+
+        //initialize variable for storing the last word's timestamp (for calculating pauses)
+        var lastTimeStamp = 0;
+
+        //initializes speech synthesis object
+        var msg = new SpeechSynthesisUtterance();
+
+        //initialize variable for storing which word the speech synthesis object is on.
+        var index = 0;
+
+        //get speak button
+        var speakButton = document.querySelector("#listen");
+
+        //calculate the amount of milliseconds each word should take.
+        var msPerWord = 60000/selectedSpeed;
+
+        //set the speak button's text to stop
+        speakButton.textContent = "Stop";
+
+        //set the speak button's function to stopping the speech recognition object.
+        speakButton.onclick = function() {
+            //cancel synth
+            synth.cancel();
+
+            //reset button text
+            speakButton.textContent = "Listen to sample!";
+
+            //reset button function to speaking sample.
+            speakButton.onclick = speakSample;
+        }
+
+        //highlight the first word.
+        highlightWord("#sample", sampleTextList, index);
+
+        //set the speech object's rate, text, and volume.
+        msg.rate = rate.toPrecision(2);
+        msg.text = sampleText;
+        msg.volume = 1;
+
+
+        //event for what happens after the speech object says a word.
+        msg.onboundary = function(event) {
+            //highlight next word
+            highlightWord("#sample", sampleTextList, index);
+
+            //how much time that word took to speak
+            var wordPeriod = event.elapsedTime - lastTimeStamp;
+
+            //how many milliseconds of pause there should be after this word.
+            var pauseTime = msPerWord - (wordPeriod % msPerWord);
+
+            //pause
+            synth.pause();
+
+            //timeout for resuming synth after pauseTime
+            setTimeout(function(){ synth.resume(); }, pauseTime);
+
+            //increment index for highlighting next word.
+            index++;
+        }
+        //event for when the synth has finished saying all its words.
+        msg.onend = function(event) {
+            //reset speak button.
+            speakButton.textContent = "Listen to sample!";
+            speakButton.onclick = speakSample;
+        }
+
+        //begins the speech synthesis object's speaking
+        synth.speak(msg);
+    }
+
+    //given a selector, list, and index, set selected element's text to wordList with word at index bolded
+    function highlightWord(selector, wordList, index) {
+        //get element
+        var elem = document.querySelector(selector);
+
+        //set text to empty first
+        var text = "";
+
+        //for each word in wordList concat to text. Bold if idx = index.
+        for (let idx = 0; idx < wordList.length; idx++) {
+            if(idx === index) {
+                text = text.concat(wordList[idx].bold() + " ");
+                continue;
+            }
+            text = text.concat(wordList[idx] + " ");
+        }
+
+        //set innerHTML to text.
+        elem.innerHTML = text;
+    }
+
+    //starts the exercise. Called when start exercise button is pressed.
+    function startExercise() {
+        //get start button
+        var startButton = document.querySelector("#start");
+
+        //Create new speech recognition object
+        var recognition = new SpeechRecognition();
+
+        //Create new speech recognition List - list of words to look out for.
+        var speechRecognitionList = new SpeechGrammarList();
+
+        //Calculate how many milliseconds there should ideally be between each word.
+        timer = parseFloat(60000/selectedSpeed).toPrecision(5);
+
+        //maxTime of the exercise. Will stop automatically after this time.
+        var maxTime = timer * 20 + 1000;
+
+        //Guide holds the setInterval for bolding each word for the user to read. Used for stopping it later.
+        var guide = null;
+
+        //endTimer holds the setTimeout that stops the exercise. Used to stop the recognition.
+        var endTimer = null;
+
+        //creates grammarList in the proper format
+        var grammar = '#JSGF V1.0; grammar words; public <word> = ' + actualTextList.join(' | ') + ' ;'
+
+        //set startTimeStamp to now, and start endTimer's timeout.
+        startTimeStamp = Date.now();
+        endTimer = setTimeout(function() { recognition.stop() }, maxTime);
+
+        //adds grammar list to speech recognition object.
+        speechRecognitionList.addFromString(grammar, 10);
+
+        //configure recognition object.
+        recognition.grammars = speechRecognitionList;
+        recognition.continuous = true;
+        recognition.lang = 'en-US';
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 10;
+
+        //start recognition and begin interval for bolding each word the user should be reading.
+        recognition.start();
+        guide = setInterval("boldNextWord()", timer);
+
+        //list of objects for each word the user said correctly, with a confidence and timestamp attribute.
+        speech = [];
+
+        //set button text to stop.
+        startButton.textContent = "stop";
+
+        //Event calls whenever a word is detected.
+        recognition.onresult = function(event) {
+            //Get the word (or words) that was just said
+            var transcript = event.results[event.resultIndex][0].transcript;
+            var confidence = event.results[event.resultIndex][0].confidence;
+
+            //If response has more than one word, split it.
+            responses = transcript.split(" ");
+            words = [];
+
+            //Add each word into words.
+            for (var i = 0; i < responses.length; i++) {
+                words.push(responses[i].trim());
+            }
+
+            //For each detected word, see if it exists in speech. If yes, replace its confidence and timestamp if confidence is higher.
+            //If not, add it in as a new object.
+            for (var i = 0; i < words.length; i++) {
+                if (words[i] in speech) {
+                    if(confidence > speech[words[i]].confidence) {
+                        speech[words[i]].confidence = confidence;
+                        speech[words[i]].timestamp = Date.now();
+                    }
+                } else {
+                    speech[words[i]] = {word: words[i]};
+                    speech[words[i]].confidence = confidence;
+                    speech[words[i]].timestamp = Date.now();
+                }
+            }
+        };
+
+        //Event calls after recognition ends - whether by the stop button, timeout, or if the user didn't speak for a long time.
+        recognition.onspeechend = function(event) {
+            //clear interval for bolding passage.
+            clearInterval(guide);
+
+            //clear timeout for when to stop recognition
+            clearTimeout(endTimer);
+
+            //reset wordIndex
+            wordIndex = 0;
+
+            //show stats
+            showStats(speech, startTimeStamp);
+        };
+
+        //set the button's onclick event to stop the exercise rather than start
+        startButton.onclick = function() {
+            //abort recognition
+            recognition.abort();
+
+            //clears interval for bolding passage.
+            clearInterval(guide);
+
+            //clears timeout for when to stop recognition
+            clearTimeout(endTimer);
+
+            //reset word index
+            wordIndex = 0;
+
+            //resets the button's onclick to startExercise
+            startButton.onclick = function() { return startExercise(); };
+
+            //resets button's text to Start Exercise.
+            startButton.textContent = "Start Exercise!";
+        }
+    }
+
+    //Function that, when called, highlights the next word in the passage the user is supposed to read.
+    function boldNextWord() {
+        highlightWord("#passage", actualTextList, wordIndex);
+        wordIndex++;
+    }
+
+    //shows the user's statistics for this reading.
+    function showStats(wordStats, startTimeStamp) {
+        //initialize variables for each stat.
+        var accuracyAvg = 0;
+        var pacingAvg = 0;
+        var lastTimeStamp = 0;
+        var missedWords = 0;
+
+        //for each word that the user is supposed to read
+        for (var idx = 0; idx < actualTextList.length; idx++) {
+            //Check if the word was detected in list of words the user spoke.
+            if(Object.keys(wordStats).includes(actualTextList[idx])) {
+                //If so, and this is the first detected word, set lastTimeStamp to this time stamp
+                //and add it's confidence to accuracy.
+                if(lastTimeStamp == 0) {
+                    lastTimeStamp = wordStats[actualTextList[idx]].timestamp;
+                    accuracyAvg += wordStats[actualTextList[idx]].confidence;
+                    continue;
+                }
+                //If this isn't the first detected word, add confidence to accuracy but also
+                //find the amount of time that elapsed since the last detected word and add it to pacingAvg.
+                //Set last time stamp to this time stamp.
+                accuracyAvg += wordStats[actualTextList[idx]].confidence;
+                var timeStamp = Math.round(wordStats[actualTextList[idx]].timestamp);
+                pacingAvg += timeStamp - lastTimeStamp;
+                lastTimeStamp = timeStamp
+            } else {
+                //If the word was not detected, add one to missedWords, and
+                //if the lastTimeStamp isn't 0, (at least one word has already been detected),
+                //add how much time there SHOULD have been between the last word and this word
+                //to simulate the pacing if the user DID say this word.
+                missedWords++;
+                if(lastTimeStamp != 0) {
+                    lastTimeStamp += Math.round(timer);
+                }
+            }
+        }
+        //calculate averages and difference between the targetted time between words and the actual time.
+        accuracyAvg /= (20 - missedWords);
+        pacingAvg /= (20 - missedWords);
+        difference = Math.abs(timer - pacingAvg);
+
+        //convert each avg into scores.
+        var accuracyGrade = accuracyScoreToGrade(accuracyAvg);
+        var pacingGrade = pacingScoreToGrade(pacingAvg, timer);
+
+        //show modal pop up.
+        $("#results").modal('show');
+
+        //sets modal event for when it is hidden (user clicks off the modal)
+        $("#results").on('hidden.bs.modal', function (e) {
+            //calculate the new speed the user should speak at
+            var newSpeed = selectedSpeed + parseFloat(speedChange);
+
+            //simulates a form's POST request to save this information with flask.
+            var url = "/exercises";
+            var util = {};
+            util.post = function(url, newSpeed) {
+                var $form = $('<form>', {
+                    action: url,
+                    method: 'post'
+                });
+                $('<input>').attr({
+                    type: "hidden",
+                    name: "speed",
+                    value: newSpeed
+                }).appendTo($form);
+                $form.appendTo('body').submit();
+            }(url, newSpeed);
+        });
+        //find main content area of modal
+        var mainContent = $("#results").find(".container");
+
+        //create element for showing the user's current speed.
+        var container = $("<div>");
+        $(container).addClass("row");
+        var speed = $("<span>");
+        $(speed).html("<b>Speed: </b>");
+        $(speed).appendTo($(container));
+        $(container).appendTo($(mainContent));
+        $(speed).text($(speed).text().concat(selectedSpeed));
+
+        //create element for showing the user's overall accuracy grade
+        var container = $("<div>");
+        $(container).addClass("row");
+        var speed = $("<span>");
+        $(speed).html("<b>Overall Accuracy: </b>");
+        $(speed).appendTo($(container));
+        $(container).appendTo($(mainContent));
+        $(speed).text($(speed).text().concat(accuracyGrade));
+
+        //create element for showing the user's overall pacing grade.
+        var container = $("<div>");
+        $(container).addClass("row");
+        var pace = $("<span>");
+        $(pace).html("<b>Overall Pacing: </b>");
+        $(pace).appendTo($(container));
+        $(pace).text($(pace).text().concat(pacingGrade));
+        $(container).appendTo($(mainContent));
+
+        //Prepare string that represents the user's change in speed.
+        let speedChange = calculateSpeedModifier(accuracyAvg, pacingAvg, missedWords);
+        let speedChangeText = speedChange.toString();
+        if(speedChange > 0) {
+            speedChangeText = "+ " + speedChangeText;
+        } else {
+            speedChangeText = "- " + (speedChangeText * -1);
+        }
+
+        //create element for showing the user's change in speed.
+        var container = $("<div>");
+        $(container).addClass("row");
+        var pace = $("<h2>");
+        $(pace).html("<b>Speed Change: </b>");
+        $(pace).appendTo($(container));
+        $(pace).text($(pace).text().concat(speedChangeText));
+        $(container).appendTo($(mainContent));
+
+        //set the speed change text's color to green if positive, red if negative.
+        if(speedChange > 0) {
+            $(pace).css("color", "green");
+        } else {
+            $(pace).css("color", "red");
+        }
+    }
+
+    //uses an algorithm to determine how much the user's speed should change by given his performance in this exercise.
+    function calculateSpeedModifier(accuracyAvg, pacingAvg, missedWords) {
+        var score = 2;
+        score -= (1 - accuracyAvg) * 2;
+        score -= (Math.abs(pacingAvg - timer)) / 250;
+        score -= Math.pow(1.2, missedWords) / 10;
+        return score.toPrecision(3);
+    }
+
+    //Converts a accuracy score (0-1) to a string that represents how well the user did.
+    function accuracyScoreToGrade(score, missedWords) {
+        var gradeScore = score - (0.1 * Math.pow(1.3, missedWords));
+        switch(true) {
+            case gradeScore < 0.5:
+                return "Very Unclear";
+            case gradeScore < 0.6:
+                return "Unclear";
+            case gradeScore < 0.7:
+                return "Mediocre";
+            case gradeScore < 0.8:
+                return "Understandable";
+            case gradeScore <= 0.9:
+                return "Pretty clear";
+            default:
+                return "Clear";
+        }
+    }
+
+    //converts the the user's pacing to a text representing how closely they followed the targetted pace.
+    function pacingScoreToGrade(score, target) {
+        var offset = Math.abs(score - target);
+        switch(true) {
+            case offset < target*0.1:
+                return "Great!";
+            case offset < target*0.2:
+                return "Good";
+            case offset < target*0.3:
+                return "Mediocre";
+            case offset < target*0.4:
+                return "Unsatisfactory";
+            case offset <= target*0.5:
+                return "Very Unsatisfactory";
+            default:
+                return "Please try harder!";
+        }
+    }
+</script>
+{% endblock %}
+
+{% block subtitle %}
+
+{% endblock %}
+
+{% block main2 %}
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block rightbar %}
+    {% if logged %}
+    <!--navbar for if the user is logged in -->
+        <ul class="nav navbar-nav navbar-right">
+          <li class="nav-item active">
+            <span class="nav-link"> Welcome, {{username}}!</span>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/logout">Log Out</a>
+          </li>
+        </ul>
+    {% else %}
+    <!--navbar if the user isn't logged in-->
+        <ul class="nav navbar-nav navbar-right">
+          <li class="nav-item active">
+            <a class="nav-link" href="/register">Register</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/login">Login</a>
+          </li>
+        </ul>
+    {% endif %}
+{% endblock %}
+
+{% block topbar %}
+    <li class="nav-item active">
+        <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/exercises">Exercises</a>
+    </li>
+{% endblock %}
+
+{% block title %}
+<h1> Welcome to SpeechPacer! </h1>
+{% endblock %}
+
+{% block main %}
+<br>
+<br>
+<span style="font-size: 150%"> This website was made for young children who stutter, through providing them with a simple and free
+service to pace their speech. The idea and science behind the website's exercises is the
+<a href="https://www.banterspeech.com.au/westmead-program/">Westmead Program</a></span>
+{% endblock %}
+
+{% block subtitle %}
+<br>
+<br>
+<br>
+<h1> How does it work? </h1>
+{% endblock %}
+
+{% block main2 %}
+<br>
+<br>
+<span style="font-size: 125%"> Through using text-to-speech and speech recognition, a passage will be read at a fixed speed, and
+the user will be asked to read out loud another passage at the same rate. Speak clearly and at the right pace to progress,
+until the desired talking speed is reached.</span>
+<br>
+<br>
+<h4>100% free to try out and use, sign up now!</h4>
+{% endblock %}
