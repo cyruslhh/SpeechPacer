@@ -249,16 +249,17 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
 
         //set startTimeStamp to now, and start endTimer's timeout.
         startTimeStamp = Date.now();
-        endTimer = setTimeout(function() { recognition.stop() }, maxTime);
+        endTimer = setTimeout(function() { startButton.textContent="processing" }, maxTime);
+        endTimer = setTimeout(function() { recognition.stop() }, maxTime + 9000);
 
         //adds grammar list to speech recognition object.
         speechRecognitionList.addFromString(grammar, 10);
 
         //configure recognition object.
         recognition.grammars = speechRecognitionList;
-        recognition.continuous = true;
+        recognition.continuous = false;
         recognition.lang = 'en-US';
-        recognition.interimResults = true;
+        recognition.interimResults = false;
         recognition.maxAlternatives = 10;
 
         //start recognition and begin interval for bolding each word the user should be reading.
