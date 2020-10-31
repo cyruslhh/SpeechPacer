@@ -510,8 +510,11 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
         var score = 2;
         console.log("stats", accuracyAvg, pacingAvg, missedWords);
         score -= (1 - accuracyAvg) * 2;
-        score -= (Math.abs(pacingAvg - timer)) / 250;
-        // score -= Math.pow(1.2, missedWords) / 10;
+        score -= (Math.abs(pacingAvg - timer)) / 500;
+        score -= Math.pow(1.2, missedWords) / 10;
+        if(score < -2) {
+          score = -2;
+        }
         return score.toPrecision(3);
     }
 
@@ -521,15 +524,15 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
         console.log("gradeScore", gradeScore);
         switch(true) {
             case gradeScore < 0.5:
-                return "Very Unclear";
-            case gradeScore < 0.6:
                 return "Unclear";
+            case gradeScore < 0.6:
+                return "<Mediocre";
             case gradeScore < 0.7:
-                return "Mediocre";
-            case gradeScore < 0.8:
                 return "Understandable";
+            case gradeScore < 0.8:
+                return "Clear";
             case gradeScore <= 0.9:
-                return "Pretty clear";
+                return "Very Clear";
             default:
                 return "Clear";
         }
@@ -539,15 +542,15 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
     function pacingScoreToGrade(score, target) {
         var offset = Math.abs(score - target);
         switch(true) {
-            case offset < target*0.1:
-                return "Great!";
             case offset < target*0.2:
-                return "Good";
-            case offset < target*0.3:
-                return "Mediocre";
+                return "Great!";
             case offset < target*0.4:
+                return "Good";
+            case offset < target*0.6:
+                return "Mediocre";
+            case offset < target*0.8:
                 return "Unsatisfactory";
-            case offset <= target*0.5:
+            case offset <= target*1:
                 return "Very Unsatisfactory";
             default:
                 return "Please try harder!";
