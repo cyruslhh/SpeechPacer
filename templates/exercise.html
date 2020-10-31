@@ -396,12 +396,14 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
           $(speed).html("<b>Error! No words detected.</b>");
           $(speed).appendTo($(container));
           $(container).appendTo($(mainContent));
-          $(speed).text($(speed).text().concat(selectedSpeed));
 
           var container = $("<div>");
           $(container).addClass("row");
           var speed = $("<span>");
           $(speed).html("<b>Please ensure you're speaking loudly and reload the page!</b>");
+          $(speed).appendTo($(container));
+          $(container).appendTo($(mainContent));
+          
           return;
 
           $("#results").on('hidden.bs.modal', function (e) {
