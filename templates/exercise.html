@@ -257,9 +257,9 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
 
         //configure recognition object.
         recognition.grammars = speechRecognitionList;
-        recognition.continuous = false;
+        recognition.continuous = true;
         recognition.lang = 'en-US';
-        recognition.interimResults = false;
+        recognition.interimResults = true;
         recognition.maxAlternatives = 10;
 
         //start recognition and begin interval for bolding each word the user should be reading.
