@@ -7,6 +7,5 @@ deployment:
     - /bin/cp helpers.py $DEPLOYPATH
     - /bin/cp package-lock.json $DEPLOYPATH
     - /bin/cp requirements.txt $DEPLOYPATH
-    - /bin/cp SpeechPacer.db $DEPLOYPATH
     - /bin/cp -R static $DEPLOYPATH
     - /bin/cp -R templates $DEPLOYPATH
