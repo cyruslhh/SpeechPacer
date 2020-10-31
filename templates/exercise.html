@@ -125,8 +125,8 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
 
     var startButton = document.querySelector("#start");
     startButton.disabled = true;
-    startButton.textContent("Loading...");
-    setTimeout(function() { startButton.textContent="start!"; startButton.disabled = false;}, 5000);
+    startButton.textContent = "Loading...";
+    setTimeout(function() { startButton.textContent = "start!"; startButton.disabled = false;}, 5000);
 
     //Called by the Listen to Sample button, speaks the sample passage at the user's current speed.
     function speakSample() {
