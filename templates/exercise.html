@@ -23,6 +23,7 @@
 {% block title %}
 <h1 class="pt-4"> Welcome to the exercise area!</h1>
 <h6 class="pt-4"> Please ensure microphone and notifications are enabled - or this page won't work.</h6>
+<h6 class="pt-4"> Please use the latest version of Chrome, and speak loudly as the speech processing toolkit utilized is experimental.</h6>
 {% endblock %}
 
 {% block main %}
@@ -350,6 +351,7 @@
         var accuracyAvg = 0;
         var pacingAvg = 0;
         var lastTimeStamp = 0;
+        var lastIdx = 0;
         var missedWords = 0;
 
         //for each word that the user is supposed to read
@@ -368,7 +370,8 @@
                 //Set last time stamp to this time stamp.
                 accuracyAvg += wordStats[actualTextList[idx]].confidence;
                 var timeStamp = Math.round(wordStats[actualTextList[idx]].timestamp);
-                pacingAvg += timeStamp - lastTimeStamp;
+                pacingAvg += (timeStamp - lastTimeStamp)/(idx - lastIdx);
+                lastIdx = idx;
                 lastTimeStamp = timeStamp
             } else {
                 //If the word was not detected, add one to missedWords, and
