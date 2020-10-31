@@ -250,7 +250,7 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
         //set startTimeStamp to now, and start endTimer's timeout.
         startTimeStamp = Date.now();
         endTimer = setTimeout(function() { startButton.textContent="processing" }, maxTime);
-        endTimer = setTimeout(function() { recognition.stop() }, maxTime + 9000);
+        endTimer = setTimeout(function() { recognition.stop() }, maxTime + 19000);
 
         //adds grammar list to speech recognition object.
         speechRecognitionList.addFromString(grammar, 10);
