@@ -126,7 +126,7 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
     var startButton = document.querySelector("#start");
     startButton.disabled = true;
     startButton.textContent = "Loading...";
-    setTimeout(function() { startButton.textContent = "start!"; startButton.disabled = false;}, 5000);
+    setTimeout(function() { startButton.textContent = "start!"; startButton.disabled = false;}, 10000);
 
     //Called by the Listen to Sample button, speaks the sample passage at the user's current speed.
     function speakSample() {
@@ -422,7 +422,7 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
         difference = Math.abs(timer - pacingAvg);
 
         //convert each avg into scores.
-        var accuracyGrade = accuracyScoreToGrade(accuracyAvg);
+        var accuracyGrade = accuracyScoreToGrade(accuracyAvg, missedWords);
         var pacingGrade = pacingScoreToGrade(pacingAvg, timer);
 
         //show modal pop up.
