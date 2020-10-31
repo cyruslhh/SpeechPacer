@@ -472,8 +472,9 @@
     //uses an algorithm to determine how much the user's speed should change by given his performance in this exercise.
     function calculateSpeedModifier(accuracyAvg, pacingAvg, missedWords) {
         var score = 2;
+        console.log("stats", accuracyAvg, pacingAvg, missedWords);
         score -= (1 - accuracyAvg) * 2;
-        score -= (Math.abs(pacingAvg - timer)) / 250;
+        score -= (Math.abs(pacingAvg - timer)) / 500;
         score -= Math.pow(1.2, missedWords) / 10;
         return score.toPrecision(3);
     }
