@@ -384,6 +384,27 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
                 }
             }
         }
+        if(missedWords = 20) {
+          $("#results").modal('show');
+          //find main content area of modal
+          var mainContent = $("#results").find(".container");
+
+          //create element for showing the user's current speed.
+          var container = $("<div>");
+          $(container).addClass("row");
+          var speed = $("<span>");
+          $(speed).html("<b>Error! No words detected.</b>");
+          $(speed).appendTo($(container));
+          $(container).appendTo($(mainContent));
+          $(speed).text($(speed).text().concat(selectedSpeed));
+
+          //create element for showing the user's overall accuracy grade
+          var container = $("<div>");
+          $(container).addClass("row");
+          var speed = $("<span>");
+          $(speed).html("<b>Please ensure you're speaking loudly and reload the page!</b>");
+          return;
+        }
         //calculate averages and difference between the targetted time between words and the actual time.
         accuracyAvg /= (20 - missedWords);
         pacingAvg /= (20 - missedWords);
