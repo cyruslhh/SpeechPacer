@@ -286,6 +286,8 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
                 words.push(responses[i].trim());
             }
 
+            console.log(words);
+
             //For each detected word, see if it exists in speech. If yes, replace its confidence and timestamp if confidence is higher.
             //If not, add it in as a new object.
             for (var i = 0; i < words.length; i++) {
@@ -403,7 +405,7 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
           $(speed).html("<b>Please ensure you're speaking loudly and reload the page!</b>");
           $(speed).appendTo($(container));
           $(container).appendTo($(mainContent));
-          
+
           return;
 
           $("#results").on('hidden.bs.modal', function (e) {
