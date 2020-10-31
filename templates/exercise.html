@@ -517,7 +517,7 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
 
     //Converts a accuracy score (0-1) to a string that represents how well the user did.
     function accuracyScoreToGrade(score, missedWords) {
-        var gradeScore = score - (0.1 * Math.pow(1.3, missedWords));
+        var gradeScore = score - (0.1 * Math.pow(1.1, missedWords));
         console.log("gradeScore", gradeScore);
         switch(true) {
             case gradeScore < 0.5:
