@@ -306,7 +306,7 @@ Please use the latest version of Chrome, and speak loudly as the speech processi
         };
 
         //Event calls after recognition ends - whether by the stop button, timeout, or if the user didn't speak for a long time.
-        recognition.onspeechend = function(event) {
+        recognition.onaudioend = function(event) {
             //clear interval for bolding passage.
             clearInterval(guide);
 
