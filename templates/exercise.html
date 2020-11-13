@@ -382,10 +382,10 @@ For best results, please speak loudly, use the latest version of chrome, and ens
                 //find the amount of time that elapsed since the last detected word and add it to pacingAvg.
                 //Set last time stamp to this time stamp.
                 if(lastTimeStamp == 0) {
-                    pacingAvg += (timeStamp - startTimeStamp)/(idx + 1);
+                    pacingAvg += Math.abs((timeStamp - startTimeStamp)/(idx + 1));
                 }
                 else {
-                  pacingAvg += (timeStamp - lastTimeStamp)/(idx - lastIdx);
+                  pacingAvg += Math.abs((timeStamp - lastTimeStamp)/(idx - lastIdx));
                 }
                 lastIdx = idx;
                 lastTimeStamp = timeStamp
