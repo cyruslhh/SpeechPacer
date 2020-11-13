@@ -374,7 +374,7 @@ For best results, please speak loudly, use the latest version of chrome, and ens
                 //find the amount of time that elapsed since the last detected word and add it to pacingAvg.
                 //Set last time stamp to this time stamp.
                 if(lastTimeStamp == 0) {
-                    pacingAvg += (timeStamp - startTimeStamp)/(idx);
+                    pacingAvg += (timeStamp - startTimeStamp)/(idx + 1);
                 }
                 else {
                   pacingAvg += (timeStamp - lastTimeStamp)/(idx - lastIdx);
@@ -522,7 +522,7 @@ For best results, please speak loudly, use the latest version of chrome, and ens
 
     //Converts a accuracy score (0-1) to a string that represents how well the user did.
     function accuracyScoreToGrade(score, missedWords) {
-        var gradeScore = score - (0.1 * Math.pow(1.1, missedWords));
+        var gradeScore = score - (0.01 * Math.pow(1.1, missedWords));
         console.log("gradeScore", gradeScore);
         switch(true) {
             case gradeScore < 0.5:
