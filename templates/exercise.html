@@ -368,7 +368,11 @@ For best results, please speak loudly, use the latest version of chrome, and ens
                 //and add it's confidence to accuracy.
                 var timeStamp = Math.round(wordStats[actualTextList[idx]].timestamp);
                 accuracyAvg += wordStats[actualTextList[idx]].confidence;
-                console.log("stats:", wordStats[actualTextList[idx]], wordStats[actualTextList[idx]].confidence, wordStats[actualTextList[idx]].timestamp)
+                var temp = lastIdx;
+                if(temp == 0) {
+                  temp = -1;
+                }
+                console.log("stats:", wordStats[actualTextList[idx]], wordStats[actualTextList[idx]].confidence, (timeStamp - lastTimeStamp)/(idx - lastIdx))
 
                 //If this isn't the first detected word, add confidence to accuracy but also
                 //find the amount of time that elapsed since the last detected word and add it to pacingAvg.
