@@ -366,18 +366,19 @@ For best results, please speak loudly, use the latest version of chrome, and ens
             if(Object.keys(wordStats).includes(actualTextList[idx])) {
                 //If so, and this is the first detected word, set lastTimeStamp to this time stamp
                 //and add it's confidence to accuracy.
-                if(lastTimeStamp == 0) {
-                    lastTimeStamp = wordStats[actualTextList[idx]].timestamp;
-                    console.log("stats:", wordStats[actualTextList[idx]], wordStats[actualTextList[idx]].confidence, wordStats[actualTextList[idx]].timestamp)
-                    accuracyAvg += wordStats[actualTextList[idx]].confidence;
-                    continue;
-                }
+                var timeStamp = Math.round(wordStats[actualTextList[idx]].timestamp);
+                accuracyAvg += wordStats[actualTextList[idx]].confidence;
+                console.log("stats:", wordStats[actualTextList[idx]], wordStats[actualTextList[idx]].confidence, wordStats[actualTextList[idx]].timestamp)
+
                 //If this isn't the first detected word, add confidence to accuracy but also
                 //find the amount of time that elapsed since the last detected word and add it to pacingAvg.
                 //Set last time stamp to this time stamp.
-                accuracyAvg += wordStats[actualTextList[idx]].confidence;
-                var timeStamp = Math.round(wordStats[actualTextList[idx]].timestamp);
-                pacingAvg += (timeStamp - lastTimeStamp)/(idx - lastIdx);
+                if(lastTimeStamp == 0) {
+                    pacingAvg += (timeStamp)/(idx);
+                }
+                else {
+                  pacingAvg += (timeStamp - lastTimeStamp)/(idx - lastIdx);
+                }
                 lastIdx = idx;
                 lastTimeStamp = timeStamp
             } else {
