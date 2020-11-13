@@ -126,7 +126,7 @@ For best results, please speak loudly, use the latest version of chrome, and ens
     var startButton = document.querySelector("#start");
     startButton.disabled = true;
     startButton.textContent = "Loading...";
-    setTimeout(function() { startButton.textContent = "start!"; startButton.disabled = false;}, 10000);
+    setTimeout(function() { startButton.textContent = "start!"; startButton.disabled = false;}, 5000);
 
     //Called by the Listen to Sample button, speaks the sample passage at the user's current speed.
     function speakSample() {
@@ -253,7 +253,7 @@ For best results, please speak loudly, use the latest version of chrome, and ens
         //set startTimeStamp to now, and start endTimer's timeout.
         startTimeStamp = Date.now();
         endTimer = setTimeout(function() { startButton.textContent="processing" }, maxTime);
-        endTimer = setTimeout(function() { recognition.stop() }, maxTime + 19000);
+        endTimer = setTimeout(function() { recognition.stop() }, maxTime + 5000);
 
         //adds grammar list to speech recognition object.
         speechRecognitionList.addFromString(grammar, 10);
@@ -381,11 +381,8 @@ For best results, please speak loudly, use the latest version of chrome, and ens
                 //If this isn't the first detected word, add confidence to accuracy but also
                 //find the amount of time that elapsed since the last detected word and add it to pacingAvg.
                 //Set last time stamp to this time stamp.
-                if(lastTimeStamp == 0) {
-                    pacingAvg += Math.abs((timeStamp - startTimeStamp)/(idx + 1));
-                }
-                else {
-                  pacingAvg += Math.abs((timeStamp - lastTimeStamp)/(idx - lastIdx));
+                if(lastTimeStamp != 0) {
+                    pacingAvg += Math.abs((timeStamp - lastTimeStamp)/(idx - lastIdx));
                 }
                 lastIdx = idx;
                 lastTimeStamp = timeStamp
