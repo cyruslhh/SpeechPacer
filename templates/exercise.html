@@ -368,6 +368,7 @@ For best results, please speak loudly, use the latest version of chrome, and ens
                 //and add it's confidence to accuracy.
                 if(lastTimeStamp == 0) {
                     lastTimeStamp = wordStats[actualTextList[idx]].timestamp;
+                    console.log("stats:", wordStats[actualTextList[idx]], wordStats[actualTextList[idx]].confidence, wordStats[actualTextList[idx]].timestamp)
                     accuracyAvg += wordStats[actualTextList[idx]].confidence;
                     continue;
                 }
