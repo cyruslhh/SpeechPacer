@@ -1,15 +1,17 @@
-Download and setup:
+## Download and setup:
 1. Download the zip file for all files here (the name of the file should be SpeechPacer.zip. If not, rename it to this):
 2. Open the CS50 IDE
 4. In the top left of the CS50 IDE, press file, and in the dropdown menu press Upload Local Files. Select the zip file.
 5. On the left sidebar, make sure that the zip file is in the home directory (i.e. not in any folder).
-6. In a terminal, execute cd
-7. execute unzip SpeechPacer.zip
-8. execute cd SpeechPacer
-9. execute flask run
-10. Use the link to open the webpage
+6. In a terminal, cd to your downloads folder, and execute the following commands: 
+```
+unzip SpeechPacer.zip
+cd SpeechPacer
+flask run
+```
+7. Use the link to open the webpage
 
-How to use (please use the latest versino Google Chrome for maximum compatibility, as the APIs used do not exist in older browsers):
+## Tutorial (please use the latest version of Google Chrome for maximum compatibility):
 1. On the top right, register for a new account by entering an entername and password
 2. After you submit, you should be directed to the log in page. Login with the same information you just put in.
 3. In the top navbar, click exercises to be brought to the exercises screen.
@@ -31,3 +33,7 @@ How to use (please use the latest versino Google Chrome for maximum compatibilit
  a. Doing well results in a speed increase and vice versa, with the amount being proportional to how well you've done.
 9. Clicking away from the results screen will automatically reload the page and save your results and new speed. You may try again!
  a. Make sure that the webpage is still secure (indicated by a lock), rather than "Not Secure", or else there will be no results.
+
+## Demo: 
+https://user-images.githubusercontent.com/56591145/188769014-6aedd35a-aa10-4169-94ce-f0e351f517fe.mp4
+
