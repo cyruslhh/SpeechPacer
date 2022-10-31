@@ -1,3 +1,4 @@
+import math
 import os
 
 from cs50 import SQL
@@ -8,6 +9,9 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 from werkzeug.security import check_password_hash, generate_password_hash
 import csv
 import random
+from google.cloud import speech
+import io
+import Levenshtein
 
 from helpers import login_required
 
@@ -141,3 +145,68 @@ def register():
         db.execute("INSERT INTO users (username, password) VALUES (?, ?)", username, generate_password_hash(password))
         return render_template("login.html")
 
+@app.route("/score", methods=["POST", "GET"])
+def score():
+    return "test"
+
+
+def score_speech(speech_file, target_time, target_words):
+    '''scores the speech file in a scale from 0-100 (100 being perfect) for timing and target_words'''
+    time_off, accuracy_off = get_time_and_levenshtein(speech_file, target_time, target_words)
+    word_score = round(s_curve(target_words))
+    time_score = round(s_curve(time_off*100))
+    return word_score, time_score
+
+def transcribe_file(speech_file):
+    """Transcribe the given audio file. Returns a list of transcribed words and their timestamps"""
+
+    client = speech.SpeechClient()
+
+
+    with io.open(speech_file, "rb") as audio_file:
+        content = audio_file.read()
+
+    audio = speech.RecognitionAudio(content=content)
+    config = speech.RecognitionConfig(
+        encoding=speech.RecognitionConfig.AudioEncoding.ENCODING_UNSPECIFIED,
+        sample_rate_hertz=16000,
+        language_code="en-US",
+        enable_word_time_offsets=True,
+    )
+
+    response = client.recognize(config=config, audio=audio)
+    output = []
+    # Each result is for a consecutive portion of the audio. Iterate through
+    for result in response.results:
+        alternative = result.alternatives[0]
+        for word in alternative.words:
+            word.start_time = (word.start_time["seconds"] + word.start_time["nanos"] * 10**-9) * 1000
+            word.end_time = (word.end_time["seconds"] + word.end_time["nanos"] * 10**-9) * 1000
+            output.append(word)
+    return output
+    
+def s_curve(x):
+    '''S curve with roughly 50 at x=10, 100 for x <= 0, and 0 for x >= 40'''
+    return 100 - (100/(1+(math.exp(-0.25*x)))**10)
+
+def get_time_and_levenshtein(speech_file, target_time, target_words):
+    '''returns how off the speech_file is from the target words and target time between words, in milliseconds'''
+    word_infos = transcribe_file(speech_file)
+    total_time_off = 0
+    total_levenshtein_distance_off = 0
+    for i in range(len(word_infos)):
+        word_info = word_infos[i]
+        previous_info = word_infos[i - 1]
+
+        if (i != 0):
+            time_off = math.abs(target_time - (word_info.start_time - previous_info.start_time))
+            if (time_off > 49):
+                total_time_off += time_off
+        
+        min_distance = math.inf
+        for target in target_words:
+            distance = Levenshtein.distance(word_info.word, target)
+            if (min_distance > distance):
+                min_distance = distance
+        total_levenshtein_distance_off = min_distance
+    return total_time_off, total_levenshtein_distance_off
